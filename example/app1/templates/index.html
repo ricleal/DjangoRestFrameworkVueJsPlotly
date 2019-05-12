@@ -8,6 +8,8 @@
 
     <div id="app">
         <h2>${ message }</h2>
+
+        <div id="plot"></div>
     </div>
 
 </div>
@@ -15,14 +17,51 @@
 
 {% block vuejs %}
 <script>
+
     const app = new Vue({
         el: '#app',
-        delimiters: ['${', '}'], 
+        delimiters: ['${', '}'],
         data: {
-            message: 'Hello Vue!'
+            message: 'Hello Vue!',
         },
         mounted() {
             console.log('app created...');
+            axios.get("/apiheart/age_desease/").then(response => {
+                let results = response.data
+                let x = [];
+                let y = [];
+                results.forEach(function(entry) {
+                    x.push(entry.age);
+                    y.push(entry.presence_of_heart_disease);
+                });
+                
+                var trace1 = {
+                    x: x,
+                    y: y,
+                    mode: 'markers',
+                    type: 'scatter'
+                };
+
+                var layout = {
+                    title: {
+                      text:'Age vs Hear Disease',
+                    },
+                    xaxis: {
+                      title: {
+                        text: 'Age',
+                      },
+                    },
+                    yaxis: {
+                      title: {
+                        text: 'Has the disease?',
+                      }
+                    }
+                  };
+                var data = [trace1];
+                Plotly.newPlot('plot', data, layout);
+            });
+
+
         },
     })
 </script>

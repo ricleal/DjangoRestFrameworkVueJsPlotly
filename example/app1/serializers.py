@@ -6,3 +6,4 @@ class HeartSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Heart
         fields = '__all__'
+
