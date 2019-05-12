@@ -10,6 +10,18 @@
         <h2>${ message }</h2>
 
         <div id="plot"></div>
+
+        <div class="btn-group btn-group-toggle">
+            <button v-on:click="hasDisease" type="button" class="btn btn-info" data-toggle="button" aria-pressed="false"
+                autocomplete="off">
+                Has heart disease.
+            </button>
+            <button v-on:click="doesNotHaveDisease" type="button" class="btn btn-primary" data-toggle="button"
+                aria-pressed="false" autocomplete="off">
+                Does not have heart disease.
+            </button>
+        </div>
+
     </div>
 
 </div>
@@ -23,46 +35,69 @@
         delimiters: ['${', '}'],
         data: {
             message: 'Hello Vue!',
+            results: [],
+            traceHasDisease: {
+                x: [],
+                type: "histogram",
+                opacity: 0.5,
+                marker: {
+                    color: 'green',
+                },
+                name: 'Has Heart Disease',
+            },
+            traceDoesNotHaveDisease: {
+                x: [],
+                type: "histogram",
+                opacity: 0.6,
+                marker: {
+                    color: 'red',
+                },
+                name: 'Does not have Heart Disease',
+            },
+            layout: {
+                barmode: "overlay",
+                title: 'Age vs Heart Disease',
+                xaxis: {
+                    title: 'Age',
+                },
+            }
         },
         mounted() {
             console.log('app created...');
             axios.get("/apiheart/age_desease/").then(response => {
-                let results = response.data
-                let x = [];
-                let y = [];
-                results.forEach(function(entry) {
-                    x.push(entry.age);
-                    y.push(entry.presence_of_heart_disease);
-                });
-                
-                var trace1 = {
-                    x: x,
-                    y: y,
-                    mode: 'markers',
-                    type: 'scatter'
-                };
-
-                var layout = {
-                    title: {
-                      text:'Age vs Hear Disease',
-                    },
-                    xaxis: {
-                      title: {
-                        text: 'Age',
-                      },
-                    },
-                    yaxis: {
-                      title: {
-                        text: 'Has the disease?',
-                      }
-                    }
-                  };
-                var data = [trace1];
-                Plotly.newPlot('plot', data, layout);
+                this.results = response.data
             });
 
+            Plotly.newPlot('plot', [this.traceHasDisease, this.traceDoesNotHaveDisease], this.layout);
 
         },
+        methods: {
+            hasDisease: function (event) {
+                let x = this.results.map(elem => {
+                    //console.log(elem.presence_of_heart_disease == 1);
+                    if (elem.presence_of_heart_disease == 1) {
+                        return elem.age;
+                    }
+                });
+                this.traceHasDisease.x = x.filter(function (el) {
+                    return el != null;
+                });
+                Plotly.update("plot", [this.traceHasDisease, this.traceDoesNotHaveDisease], this.layout);
+            },
+            doesNotHaveDisease: function (event) {
+                let x = this.results.map(elem => {
+                    //console.log(elem.presence_of_heart_disease == 1);
+                    if (elem.presence_of_heart_disease == 0) {
+                        return elem.age;
+                    }
+                });
+                this.traceDoesNotHaveDisease.x = x.filter(function (el) {
+                    return el != null;
+                });
+                Plotly.update("plot", [this.traceHasDisease, this.traceDoesNotHaveDisease], this.layout);
+            },
+
+        }
     })
 </script>
 {% endblock vuejs %}
