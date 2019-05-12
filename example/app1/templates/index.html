@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<div class="container">
+
+    <h1>Hello html!</h1>
+
+    <div id="app">
+        <h2>${ message }</h2>
+    </div>
+
+</div>
+{% endblock content %}
+
+{% block vuejs %}
+<script>
+    const app = new Vue({
+        el: '#app',
+        delimiters: ['${', '}'], 
+        data: {
+            message: 'Hello Vue!'
+        },
+        mounted() {
+            console.log('app created...');
+        },
+    })
+</script>
+{% endblock vuejs %}
